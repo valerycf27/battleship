@@ -30,6 +30,13 @@ public class Engine {
 			Util.printBoards(ai.getOceanGrid(),ai.getTargetGrid());
 
 		}
+		if (victoryUser) {
+			System.out.println("Congratulations on your victory, Player.");
+		}
+		else {
+			System.out.println("The machine has won the game");
+		}
+		System.out.println("ACABADO");
 		
 	}
 

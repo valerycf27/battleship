@@ -13,23 +13,30 @@ public class User implements Player{
 	private Ship [][] oceanGrid;
 	private char [][] targetGrid;
 	private Ship[] shipList = new Ship [10];
+	private HashMap<String, Integer> lettersMap = new HashMap<String, Integer>();
+
 	
 	public User() {
 		oceanGrid = new Ship[10][10];
 		targetGrid = new char[10][10];
 		
-		shipList[0] = new Carrier();
-		shipList[1] = new Battleship();
-		shipList[2] = new Battleship();
+		shipList[0] = new Carrier(1);
+		shipList[1] = new Battleship(1);
+		shipList[2] = new Battleship(2);
 		
 		for(int i = 3; i<6; i++) {
-			shipList[i] = new Submarine();
+			shipList[i] = new Submarine(i-2);
 		}
 		for(int i = 6; i<10; i++) {
-			shipList[i] = new PatrolBoat();
+			shipList[i] = new PatrolBoat(i-5);
 		}	
 		
-		
+		int count = 0;
+		for(int asciiValue = 65; asciiValue < 75 ; asciiValue++) {
+			 char convertedChar = (char)asciiValue;
+			 lettersMap.put(Character.toString(convertedChar), count);
+			 count++;
+		}
 	}
 	
 	@Override
@@ -41,14 +48,6 @@ public class User implements Player{
 	public void createOceanGrid() {
 		
 		int counter=0;
-		
-		HashMap<String, Integer> lettersMap = new HashMap<String, Integer>();
-		int count = 0;
-		for(int asciiValue = 65; asciiValue < 75 ; asciiValue++) {
-			 char convertedChar = (char)asciiValue;
-			 lettersMap.put(Character.toString(convertedChar), count);
-			 count++;
-		}
 		//System.out.println(lettersMap);
 		//inicializar
 	    
@@ -115,13 +114,6 @@ public class User implements Player{
 	@Override
 	public void attack(Ship[][] rivalGrid) {
 		boolean notAttack=false;
-		HashMap<String, Integer> lettersMap = new HashMap<String, Integer>();
-		int count = 0;
-		for(int asciiValue = 65; asciiValue < 75 ; asciiValue++) {
-			 char convertedChar = (char)asciiValue;
-			 lettersMap.put(Character.toString(convertedChar), count);
-			 count++;
-		}
 	    while (!notAttack) {
 			System.out.print("Please select a position within the board to attack: ");
 			String coordenada;
@@ -134,7 +126,8 @@ public class User implements Player{
 		    if (targetGrid[number1][lettersMap.get(letra1)]== '\u0000'){
 		    	if (rivalGrid[number1][lettersMap.get(letra1)]!=null) {
 		    		targetGrid[number1][lettersMap.get(letra1)]='X';
-		    		checkShipSunk(number1,lettersMap.get(letra1),rivalGrid,targetGrid); //CHECK IF ALL POSITIONS OF THE SHIP HAVE BEEN HIT
+		    		int checkeo[]=movePosition(number1,lettersMap.get(letra1),rivalGrid);
+		    		checkShipSunk(checkeo[0],checkeo[1],rivalGrid,targetGrid); //CHECK IF ALL POSITIONS OF THE SHIP HAVE BEEN HIT
 		    	}
 		    	else {
 		    		targetGrid[number1][lettersMap.get(letra1)]='o';
@@ -146,36 +139,40 @@ public class User implements Player{
 		
 	}
 	
-	private void checkShipSunk(int x,int y,Ship[][] rg,char[][] tg) {
-		boolean entireShip;
-		if(x>0 && y>0) {
-			if (rg[x][y].isVertical()) {
-				if ((tg[x-1][y]!= '\u0000') && (rg[x-1][y].equals(rg[x][y]))) {  //COLUMN SHIP
-					checkShipSunk(x-1,y,rg,tg);
-				}			
-			}
-			else{
-				if ((tg[x][y-1]!= '\u0000') && (rg[x][y-1].equals(rg[x][y]))) { //ROW SHIP
-					checkShipSunk(x,y-1,rg,tg);
-				}			
+	private int[] movePosition(int x,int y,Ship[][] rg) {
+		if (rg[x][y].isVertical() && x>0) {
+			if (/*(tg[x-1][y]!= '\u0000') &&*/ rg[x][y].equals(rg[x-1][y])) {  //COLUMN SHIP
+				return movePosition(x-1,y,rg);
 			}			
 		}
-
-		entireShip=true;
-		for (int i=0;0<(rg[x][y].getSize()-1);i++) {
+		else if(y>0){
+			if (/*(tg[x][y-1]!= '\u0000') && */(rg[x][y].equals(rg[x][y-1]))) { //ROW SHIP
+				return movePosition(x,y-1,rg);
+			}			
+		}
+		int coordinates[]=new int[2];
+		coordinates[0]=x;
+		coordinates[1]=y;
+		return coordinates;
+	}
+	
+	private void checkShipSunk(int x,int y, Ship[][] rg,char[][] tg) {
+		boolean entireShip=true;
+		int len=rg[x][y].getSize();
+		for (int i=0;i<(len);i++) {
 			if (tg[x][y]== '\u0000') {
 				entireShip=false;
 				break;
 			}
-			if (rg[x][y].isVertical()) {
+			if (rg[x][y].isVertical() && i+1<len) {
 				x++;
 			}
-			else {
+			else if(i+1<len){
 				y++;
 			}
 		}
 		if (entireShip) {
-			for (int i=0;0<rg[x][y].getSize();i++) {
+			for (int i=0;i<len;i++) {
 				tg[x][y]=rg[x][y].getLetter();
 				if (rg[x][y].isVertical()) {
 					x--;
@@ -192,5 +189,4 @@ public class User implements Player{
 	public char[][] getTargetGrid() {
 		return targetGrid;
 	}
-	
 }

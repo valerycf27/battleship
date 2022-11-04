@@ -5,12 +5,14 @@ public class Ship {
 	private int size;
 	private char letter;
 	private boolean vertical;
+	private int id;
 	
-	public Ship(String n,int s,char l, boolean v) {
+	public Ship(String n,int s,char l, boolean v, int id) {
 		this.name=n;
 		this.size=s;
 		this.letter=l;
 		this.vertical= v;
+		this.id=id;
 	}
 
 	public String getName() {
@@ -76,10 +78,9 @@ public class Ship {
 			return false;
 		if (vertical != other.vertical)
 			return false;
+		if (id != other.id)
+			return false;
 		return true;
 	}
-	
-	
-	
 	
 }
