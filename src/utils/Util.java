@@ -58,7 +58,11 @@ public class Util {
 		}else {
 			for(int i=0; i<size; i++) {
 				if(oceanGrid[row][i] != null) {
-					System.out.print("|"+oceanGrid[row][i].getLetter());
+					System.out.print("|"+oceanGrid[row][i].getArrayShip()[oceanGrid[row][i].getCounterArray()]);
+					oceanGrid[row][i].setCounterArray(oceanGrid[row][i].getCounterArray()+1);
+					if (oceanGrid[row][i].getCounterArray() == oceanGrid[row][i].getSize()) {
+						oceanGrid[row][i].setCounterArray(oceanGrid[row][i].getCounterArray()-oceanGrid[row][i].getSize());
+					}
 				}else {
 					System.out.print("| ");
 				}

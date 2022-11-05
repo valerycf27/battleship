@@ -1,5 +1,7 @@
 package core;
 
+import java.util.Random;
+
 import players.AI;
 import players.Player;
 import players.User;
@@ -19,17 +21,27 @@ public class Engine {
 		
 		boolean victoryUser = false;
 		boolean victoryAI = false;
-
+		
+		Random rd = new Random();  //ONCE WE HAVE A HIT, WE CHECK IN THE AREA FOR MORE HITS
+		boolean order=rd.nextBoolean();
 		
 		while(!victoryUser && !victoryAI) {
-			user.attack(ai.getOceanGrid());
-			ai.attack(user.getOceanGrid());
+	
+			if (order) {
+				user.attack(ai.getOceanGrid());
+				ai.attack(user.getOceanGrid());				
+			}
+			else {
+				ai.attack(user.getOceanGrid());				
+				user.attack(ai.getOceanGrid());
+			}
+			
 			victoryUser=Util.checkwinner(ai.getOceanGrid(),user.getTargetGrid());
 			victoryAI=Util.checkwinner(user.getOceanGrid(),ai.getTargetGrid());
 			Util.printBoards(user.getOceanGrid(),user.getTargetGrid());
 			Util.printBoards(ai.getOceanGrid(),ai.getTargetGrid());
-
 		}
+		
 		if (victoryUser) {
 			System.out.println("Congratulations on your victory, player.");
 		}

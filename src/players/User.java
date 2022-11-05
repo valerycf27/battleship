@@ -21,19 +21,17 @@ public class User implements Player{
 		oceanGrid = new Ship[Constants.TEN][Constants.TEN];
 		targetGrid = new char[Constants.TEN][Constants.TEN];
 		
-		int i;
-		for (i=1;i<=Constants.NUM_CARRIER;i++) {
-			shipList[0] = new Carrier(i);
+		shipList[0] = new Carrier(1);
+		
+		for(int i = 1; i<1+Constants.NUM_BATTLESHIP; i++) {
+			shipList[i] = new Battleship(i);
 		}
-		for (i=1;i<=Constants.NUM_BATTLESHIP;i++) {
-			shipList[0] = new Battleship(i);
+		for(int i = 3; i<3+Constants.NUM_SUBMARINE; i++) {
+			shipList[i] = new Submarine(i-2);
 		}
-		for (i=1;i<=Constants.NUM_SUBMARINE;i++) {
-			shipList[0] = new Submarine(i);
+		for(int i=6;i<6+Constants.NUM_PATROLBOAT; i++) {
+			shipList[i] = new PatrolBoat(i-5);
 		}
-		for (i=1;i<=Constants.NUM_PATROLBOAT;i++) {
-			shipList[0] = new PatrolBoat(i);
-		}	
 		
 		int count = 0;
 		for(int asciiValue = Constants.A_ASCII; asciiValue < Constants.K_ASCII ; asciiValue++) {
@@ -109,8 +107,9 @@ public class User implements Player{
 		    if (targetGrid[number1][lettersMap.get(letra1)]== '\u0000'){
 		    	if (rivalGrid[number1][lettersMap.get(letra1)]!=null) {
 		    		targetGrid[number1][lettersMap.get(letra1)]='X';
-		    		rivalGrid[number1][lettersMap.get(letra1)].setLetter('X');
+//		    		rivalGrid[number1][lettersMap.get(letra1)].setLetter('X');
 		    		int checkeo[]=movePosition(number1,lettersMap.get(letra1),rivalGrid);
+		    		insertXoceanGrid(checkeo,number1,lettersMap.get(letra1),rivalGrid);
 		    		checkShipSunk(checkeo[0],checkeo[1],rivalGrid,targetGrid); //CHECK IF ALL POSITIONS OF THE SHIP HAVE BEEN HIT
 		    	}
 		    	else {
@@ -166,6 +165,19 @@ public class User implements Player{
 		coordinates[0]=x;
 		coordinates[1]=y;
 		return coordinates;
+	}
+	
+	private void insertXoceanGrid(int[] coordinates0,int x1,int y1,Ship[][] rg) {
+		if (rg[x1][y1].isVertical()) {
+			char[] letterShip=rg[x1][y1].getArrayShip();
+			letterShip[x1-coordinates0[0]]='X';
+			rg[x1][y1].setArrayShip(letterShip);
+		}
+		else {
+			char[] letterShip=rg[x1][y1].getArrayShip();
+			letterShip[y1-coordinates0[1]]='X';
+			rg[x1][y1].setArrayShip(letterShip);			
+		}
 	}
 	
 	private void checkShipSunk(int x,int y, Ship[][] rg,char[][] tg) {

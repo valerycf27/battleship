@@ -7,36 +7,33 @@ public class Ship {
 	private boolean vertical;
 	private int id;
 	
+	private char[] arrayShip;
+	private int counterArray;
+	
 	public Ship(String n,int s,char l, boolean v, int id) {
 		this.name=n;
 		this.size=s;
 		this.letter=l;
 		this.vertical= v;
 		this.id=id;
+		
+		this.arrayShip= new char[this.size];
+		for (int i=0;i<this.size;i++) {
+			arrayShip[i]=this.letter;
+		}
+		this.counterArray=0;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public int getSize() {
 		return size;
 	}
 
-	public void setSize(int size) {
-		this.size = size;
-	}
-
 	public char getLetter() {
 		return letter;
-	}
-
-	public void setLetter(char letter) {
-		this.letter = letter;
 	}
 
 	public boolean isVertical() {
@@ -49,6 +46,22 @@ public class Ship {
 
 	public int getId() {
 		return id;
+	}	
+	
+	public char[] getArrayShip() {
+		return arrayShip;
+	}
+
+	public void setArrayShip(char[] arrayShip) {
+		this.arrayShip = arrayShip;
+	}
+	
+	public int getCounterArray() {
+		return counterArray;
+	}
+
+	public void setCounterArray(int counterArray) {
+		this.counterArray = counterArray;
 	}
 
 	@Override

@@ -25,21 +25,18 @@ public class AI implements Player{
 		oceanGrid = new Ship[Constants.TEN][Constants.TEN];
 		targetGrid = new char[Constants.TEN][Constants.TEN];
 		
-		int i;
-		for (i=1;i<=Constants.NUM_CARRIER;i++) {
-			shipList[0] = new Carrier(i);
-		}
-		for (i=1;i<=Constants.NUM_BATTLESHIP;i++) {
-			shipList[0] = new Battleship(i);
-		}
-		for (i=1;i<=Constants.NUM_SUBMARINE;i++) {
-			shipList[0] = new Submarine(i);
-		}
-		for (i=1;i<=Constants.NUM_PATROLBOAT;i++) {
-			shipList[0] = new PatrolBoat(i);
-		}
-
 		
+		shipList[0] = new Carrier(1);
+		for(int i = 1; i<1+Constants.NUM_BATTLESHIP; i++) {
+			shipList[i] = new Battleship(i);
+		}
+		for(int i = 3; i<3+Constants.NUM_SUBMARINE; i++) {
+			shipList[i] = new Submarine(i-2);
+		}
+		for(int i=6;i<6+Constants.NUM_PATROLBOAT; i++) {
+			shipList[i] = new PatrolBoat(i-5);
+		}
+			
 		
 	}
 	
@@ -150,7 +147,7 @@ public class AI implements Player{
 	    		System.out.println(x1+" "+y1);
 		    	if (rivalGrid[x1][y1] != null) {
 		    		targetGrid[x1][y1]='X';
-		    		rivalGrid[x1][y1].setLetter('X');
+//		    		rivalGrid[x1][y1].setLetter('X');
 		    		if (Math.abs(x1-coordinateHit[0])==1) {
 		    			verticalDirection=true;
 		    		}
@@ -162,6 +159,7 @@ public class AI implements Player{
 		    		coordinateHit[1]=y1;
 		    		shipTouched=true;
 		    		int checkeo[]=movePosition(x1,y1,rivalGrid);
+		    		insertXoceanGrid(checkeo,x1,y1,rivalGrid);
 		    		checkShipSunk(checkeo[0],checkeo[1],rivalGrid,targetGrid);
 		    		if (!shipTouched) {
 		    			verticalDirection=false;
@@ -305,6 +303,20 @@ public class AI implements Player{
 		coordinates[1]=y;
 		return coordinates;
 	}
+	
+	private void insertXoceanGrid(int[] coordinates0,int x1,int y1,Ship[][] rg) {
+		if (rg[x1][y1].isVertical()) {
+			char[] letterShip=rg[x1][y1].getArrayShip();
+			letterShip[x1-coordinates0[0]]='X';
+			rg[x1][y1].setArrayShip(letterShip);
+		}
+		else {
+			char[] letterShip=rg[x1][y1].getArrayShip();
+			letterShip[y1-coordinates0[1]]='X';
+			rg[x1][y1].setArrayShip(letterShip);			
+		}
+	}
+
 	
 	private void checkShipSunk(int x,int y,Ship[][] rg,char[][] tg) {
 		boolean entireShip=true;
