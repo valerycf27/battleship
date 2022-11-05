@@ -3,6 +3,7 @@ package utils;
 import ships.Ship;
 
 public class Util {
+	
 	public static void printBoards(Ship[][] oceanGrid,char [][] targetGrid) {
 		printHeader(" TARGET GRID ");
 		printColumns();
@@ -37,26 +38,27 @@ public class Util {
 	}
 
 	private static void printGrid(Ship[][] oceanGrid,char [][] targetGrid) {
-		for(int i = 0; i<10; i++) {
+		for(int i = 0; i<Constants.TEN; i++) {
 			System.out.print(i);
 			if(targetGrid == null) {
-				printOceanGrid(10,oceanGrid,i);
+				printOceanGrid(Constants.TEN,oceanGrid,i);
 			}else {
-				printTargetGrid(10,targetGrid,i);
+				printTargetGrid(Constants.TEN,targetGrid,i);
 			}
 			
 			System.out.println("|"+i);
 		}
 	}
-	private static void printOceanGrid(int size,Ship[][] oceanGrid,int fila) {
+	
+	private static void printOceanGrid(int size,Ship[][] oceanGrid,int row) {
 		if (oceanGrid==null) {
 			for(int i=0; i<size; i++) {
 				System.out.print("| ");
 			}
 		}else {
 			for(int i=0; i<size; i++) {
-				if(oceanGrid[fila][i] != null) {
-					System.out.print("|"+oceanGrid[fila][i].getLetter());
+				if(oceanGrid[row][i] != null) {
+					System.out.print("|"+oceanGrid[row][i].getLetter());
 				}else {
 					System.out.print("| ");
 				}
@@ -65,15 +67,15 @@ public class Util {
 		
 	}
 	
-	private static void printTargetGrid(int size,char[][] targetGrid,int fila) {
+	private static void printTargetGrid(int size,char[][] targetGrid,int row) {
 		if (targetGrid==null) {
 			for(int i=0; i<size; i++) {
 				System.out.print("| ");
 			}
 		}else {
 			for(int i=0; i<size; i++) {
-				if(targetGrid[fila][i] != '\u0000') {
-					System.out.print("|"+targetGrid[fila][i]);
+				if(targetGrid[row][i] != '\u0000') {
+					System.out.print("|"+targetGrid[row][i]);
 				}else {
 					System.out.print("| ");
 				}
@@ -88,7 +90,6 @@ public class Util {
 		}
 		
 	}
-	
 
 	public static void printHeader(String header) {
 		printSymbols(5, "=");
@@ -99,7 +100,7 @@ public class Util {
 	
 	private static void printColumns() {
 		System.out.print("  ");
-		for(int asciiValue = 65; asciiValue < 75 ; asciiValue++) {
+		for(int asciiValue = Constants.A_ASCII; asciiValue < Constants.K_ASCII ; asciiValue++) {
 			 char convertedChar = (char)asciiValue;
 		        System.out.print(convertedChar+" ");
 		}
@@ -107,15 +108,14 @@ public class Util {
 	}
 	
 	public static boolean checkwinner(Ship[][] oceanGrid,char [][] targetGrid) {
-		for (int i=0;i<10;i++) {
-			for (int j=0;j<10;j++) {
-				if (oceanGrid[i][j] != null) {
-					if(oceanGrid[i][j].getLetter()!=targetGrid[i][j]) {
-						return false;
-					}
+		for (int i=0;i<Constants.TEN;i++) {
+			for (int j=0;j<Constants.TEN;j++) {
+				if (oceanGrid[i][j] != null && targetGrid[i][j]=='\u0000') {
+					return false;
 				}
 			}
 		}
 		return true;
 	}
+	
 }

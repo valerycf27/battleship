@@ -7,11 +7,12 @@ import ships.Carrier;
 import ships.PatrolBoat;
 import ships.Ship;
 import ships.Submarine;
+import utils.Constants;
 
 public class AI implements Player{
 	private Ship [][] oceanGrid;
 	private char [][] targetGrid;
-	private Ship[] shipList = new Ship [10];
+	private Ship[] shipList = new Ship [Constants.TEN];
 	
 	
 	private int[] coordinateHit=new int[2];
@@ -21,21 +22,54 @@ public class AI implements Player{
 
 	
 	public AI() {
-		oceanGrid = new Ship[10][10];
-		targetGrid = new char[10][10];
+		oceanGrid = new Ship[Constants.TEN][Constants.TEN];
+		targetGrid = new char[Constants.TEN][Constants.TEN];
 		
-		shipList[0] = new Carrier(1);
-		shipList[1] = new Battleship(1);
-		shipList[2] = new Battleship(2);
-		
-		for(int i = 3; i<6; i++) {
-			shipList[i] = new Submarine(i-2);
+		int i;
+		for (i=1;i<=Constants.NUM_CARRIER;i++) {
+			shipList[0] = new Carrier(i);
 		}
-		for(int i = 6; i<10; i++) {
-			shipList[i] = new PatrolBoat(i-5);
-		}	
+		for (i=1;i<=Constants.NUM_BATTLESHIP;i++) {
+			shipList[0] = new Battleship(i);
+		}
+		for (i=1;i<=Constants.NUM_SUBMARINE;i++) {
+			shipList[0] = new Submarine(i);
+		}
+		for (i=1;i<=Constants.NUM_PATROLBOAT;i++) {
+			shipList[0] = new PatrolBoat(i);
+		}
+
 		
 		
+	}
+	
+	@Override
+	public void createOceanGrid() {
+		int counter=0;
+		Random rand = new Random();
+		
+		while (counter<shipList.length) {
+		    int x = rand.nextInt(shipList.length);
+		    int y = rand.nextInt(shipList.length);
+		    
+		    int direction = rand.nextInt(4);
+		    
+			if (checkShip(x,y,direction,counter,this.oceanGrid)) {
+				placeShip(x,y,direction,counter,this.oceanGrid);
+				counter++;
+			}
+		}
+		
+	}
+
+	@Override
+	public Ship[][] getOceanGrid() {
+		return oceanGrid;
+	}
+	
+	@Override
+	public char[][] getTargetGrid() {
+		return targetGrid;
 	}
 	
 	@Override
@@ -45,7 +79,7 @@ public class AI implements Player{
 	    int y1=0;
 	    while (!notAttack) {
 	    	if (shipTouched) {
-	    		if (surroundingCheck(coordinateHit[0],coordinateHit[1]) /*(verticalCheck&&verticalDirection)*/) {			//IF THERE IS A HIT AND THE AREA IS ALREADY CHECKED, WE MOVE TO LOOK FOR MORE HITS
+	    		if (surroundingCheck(coordinateHit[0],coordinateHit[1])) {	//IF THERE IS A HIT AND THE AREA IS ALREADY CHECKED, WE MOVE TO LOOK FOR MORE HITS
 	    			while(targetGrid[coordinateHit[0]][coordinateHit[1]]== 'X'){
 		    			if (verticalDirection && coordinateHit[0]<9) {
 		    				coordinateHit[0]++;
@@ -61,11 +95,11 @@ public class AI implements Player{
 		    			}
 	    			}
 	    		}
-	    		Random rd = new Random();   //ONCE WE HAVE A HIT, WE CHECK IN THE AREA FOR MORE HITS
+	    		Random rd = new Random();  //ONCE WE HAVE A HIT, WE CHECK IN THE AREA FOR MORE HITS
 	    		boolean column=rd.nextBoolean();
 	    		boolean side=rd.nextBoolean();
 	    		
-	    		if (column /*|| verticalDirection*/) {  	//COLUMN POSITION
+	    		if (column) {  	//COLUMN POSITION
 	    			if (coordinateHit[0]==0) {
 	    				x1=coordinateHit[0]+1;
 	    				y1=coordinateHit[1];
@@ -78,12 +112,12 @@ public class AI implements Player{
 	    				x1=coordinateHit[0]-1;
 	    				y1=coordinateHit[1];
 	    			}
-	    			else{					//DOWN
+	    			else{				//DOWN
 	    	    		x1=coordinateHit[0]+1;
 	    	    		y1=coordinateHit[1];
 	    			}
 	    		}
-	    		else if (/*horizontalDirection ||*/ !column) {						//ROW POSITION
+	    		else if (!column) {		//ROW POSITION
 	    			
 	    			if (coordinateHit[1]==0) {
 	    				x1=coordinateHit[0];
@@ -97,7 +131,7 @@ public class AI implements Player{
 	    				x1=coordinateHit[0];
 	    				y1=coordinateHit[1]-1;
 	    			}
-	    			else {					//RIGHT
+	    			else {				//RIGHT
 	    	    		x1=coordinateHit[0];
 	    	    		y1=coordinateHit[1]+1;
 	    			}
@@ -116,6 +150,7 @@ public class AI implements Player{
 	    		System.out.println(x1+" "+y1);
 		    	if (rivalGrid[x1][y1] != null) {
 		    		targetGrid[x1][y1]='X';
+		    		rivalGrid[x1][y1].setLetter('X');
 		    		if (Math.abs(x1-coordinateHit[0])==1) {
 		    			verticalDirection=true;
 		    		}
@@ -141,6 +176,50 @@ public class AI implements Player{
 		    }
 
 	    }
+	}
+	
+	private boolean checkShip(int x, int y, int direction,int positionList,Ship[][] og) {
+		for (int i=0;i<shipList[positionList].getSize();i++) {
+			if (x>9 || x<0 || y>9 ||y<0) {
+				return false;
+			}
+			if (og[x][y] != null) {
+				return false;
+			}
+			if (direction==0) {
+				y++;
+			}
+			else if (direction==1) {
+				x++;
+			}
+			else if (direction==2) {
+				y--;
+			}
+			else if (direction==3) {
+				x--;
+			}
+		}
+		return true;
+	}
+	
+	private void placeShip(int x,int y, int direction, int positionList,Ship[][] og) {
+		for (int i=0;i<shipList[positionList].getSize();i++) {
+			og[x][y]=shipList[positionList];
+			if (direction==0) {
+				y++;
+			}
+			else if (direction==1) {
+				og[x][y].setVertical(true);
+				x++;
+			}
+			else if (direction==2) {
+				y--;
+			}
+			else if (direction==3) {
+				og[x][y].setVertical(true);
+				x--;
+			}
+		}
 	}
 	
 	private void searchX() {
@@ -209,78 +288,6 @@ public class AI implements Player{
 		}	
 		return true;
 	}
-	@Override
-	public void createOceanGrid() {
-		int counter=0;
-	    
-		while (counter<shipList.length) {
-			Random rand = new Random(); //instance of random class
-		    int x = rand.nextInt(shipList.length);
-		    int y = rand.nextInt(shipList.length);
-		    
-		    int direction = rand.nextInt(4);
-		    
-			if (checkShip(x,y,direction,counter,this.oceanGrid)) {
-				placeShip(x,y,direction,counter,this.oceanGrid);
-				counter++;
-			}
-		}
-		
-	}
-
-	@Override
-	public Ship[][] getOceanGrid() {
-		return oceanGrid;
-	}
-	
-	@Override
-	public char[][] getTargetGrid() {
-		return targetGrid;
-	}
-	
-	private boolean checkShip(int x, int y, int direction,int positionList,Ship[][] og) {
-		for (int i=0;i<shipList[positionList].getSize();i++) {
-			if (x>9 || x<0 || y>9 ||y<0) {
-				return false;
-			}
-			if (og[x][y] != null) {
-				return false;
-			}
-			if (direction==0) {
-				y++;
-			}
-			else if (direction==1) {
-				x++;
-			}
-			else if (direction==2) {
-				y--;
-			}
-			else if (direction==3) {
-				x--;
-			}
-		}
-		return true;
-	}
-	
-	private void placeShip(int x,int y, int direction, int positionList,Ship[][] og) {
-		for (int i=0;i<shipList[positionList].getSize();i++) {
-			og[x][y]=shipList[positionList];
-			if (direction==0) {
-				y++;
-			}
-			else if (direction==1) {
-				og[x][y].setVertical(true);
-				x++;
-			}
-			else if (direction==2) {
-				y--;
-			}
-			else if (direction==3) {
-				og[x][y].setVertical(true);
-				x--;
-			}
-		}
-	}
 	
 	private int[] movePosition(int x,int y,Ship[][] rg) {
 		if (rg[x][y].isVertical() && x>0) {
@@ -300,20 +307,9 @@ public class AI implements Player{
 	}
 	
 	private void checkShipSunk(int x,int y,Ship[][] rg,char[][] tg) {
-		boolean entireShip;
-//		if (rg[x][y].isVertical()) {
-//			if (/*(tg[x-1][y]!= '\u0000') &&*/ (rg[x-1][y].equals(rg[x][y]))) {  //COLUMN SHIP
-//				return checkShipSunk(x-1,y,rg,tg);
-//			}			
-//		}
-//		else{
-//			if (/*(tg[x][y-1]!= '\u0000') &&*/ (rg[x][y-1].equals(rg[x][y]))) { //ROW SHIP
-//				return checkShipSunk(x,y-1,rg,tg);
-//			}			
-//		}
-		entireShip=true;
+		boolean entireShip=true;
 		int len=rg[x][y].getSize();
-		for (int i=0;i<len;i++) { //HE QUITADO EL -1
+		for (int i=0;i<len;i++) {
 			if (tg[x][y]== '\u0000') {
 				entireShip=false;
 				break;

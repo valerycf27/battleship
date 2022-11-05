@@ -8,31 +8,35 @@ import ships.Carrier;
 import ships.PatrolBoat;
 import ships.Ship;
 import ships.Submarine;
+import utils.Constants;
 
 public class User implements Player{
 	private Ship [][] oceanGrid;
 	private char [][] targetGrid;
-	private Ship[] shipList = new Ship [10];
+	private Ship[] shipList = new Ship [Constants.TEN];
+	
 	private HashMap<String, Integer> lettersMap = new HashMap<String, Integer>();
-
 	
 	public User() {
-		oceanGrid = new Ship[10][10];
-		targetGrid = new char[10][10];
+		oceanGrid = new Ship[Constants.TEN][Constants.TEN];
+		targetGrid = new char[Constants.TEN][Constants.TEN];
 		
-		shipList[0] = new Carrier(1);
-		shipList[1] = new Battleship(1);
-		shipList[2] = new Battleship(2);
-		
-		for(int i = 3; i<6; i++) {
-			shipList[i] = new Submarine(i-2);
+		int i;
+		for (i=1;i<=Constants.NUM_CARRIER;i++) {
+			shipList[0] = new Carrier(i);
 		}
-		for(int i = 6; i<10; i++) {
-			shipList[i] = new PatrolBoat(i-5);
+		for (i=1;i<=Constants.NUM_BATTLESHIP;i++) {
+			shipList[0] = new Battleship(i);
+		}
+		for (i=1;i<=Constants.NUM_SUBMARINE;i++) {
+			shipList[0] = new Submarine(i);
+		}
+		for (i=1;i<=Constants.NUM_PATROLBOAT;i++) {
+			shipList[0] = new PatrolBoat(i);
 		}	
 		
 		int count = 0;
-		for(int asciiValue = 65; asciiValue < 75 ; asciiValue++) {
+		for(int asciiValue = Constants.A_ASCII; asciiValue < Constants.K_ASCII ; asciiValue++) {
 			 char convertedChar = (char)asciiValue;
 			 lettersMap.put(Character.toString(convertedChar), count);
 			 count++;
@@ -40,49 +44,101 @@ public class User implements Player{
 	}
 	
 	@Override
+	public void createOceanGrid() {
+		
+		int counter=0;
+//		Scanner teclado = new Scanner(System.in);
+		
+		while (counter<shipList.length) {
+			System.out.print("\nPlease enter the position of your "+shipList[counter].getName()+" "+shipList[counter].getId() +":\n");
+			Scanner teclado = new Scanner(System.in); //QUITAR
+			String coordinate;
+			coordinate=teclado.nextLine();
+			String letter1 = coordinate.substring(0,1);
+			String n1 = coordinate.substring(1,2);
+			int number1 = Integer.parseInt(n1);
+			String letter2 = coordinate.substring(3,4);
+			String n2 = coordinate.substring(4,5);
+			int number2 = Integer.parseInt(n2);
+			
+			if (letter1.equals(letter2) && Math.abs(number2-number1)==shipList[counter].getSize()-1) {  //COLUMN SHIP
+				if (checkOverlapping(number1,lettersMap.get(letter1),counter,this.oceanGrid, true)) {
+					shipList[counter].setVertical(true);
+					placeShip(number1,lettersMap.get(letter1),counter,this.oceanGrid);
+					counter++;
+				}
+			}
+			else if (number1==number2 && (Math.abs(lettersMap.get(letter1)-lettersMap.get(letter2)))==shipList[counter].getSize()-1){ //ROW SHIP
+				if (checkOverlapping(number1,lettersMap.get(letter1),counter,this.oceanGrid, false)) {
+					shipList[counter].setVertical(false);
+					placeShip(number1,lettersMap.get(letter1),counter,this.oceanGrid);
+					counter++;
+				}
+			}
+			else {
+				System.out.println("The coordinates are not well introduced. Please try again");
+			}
+		}
+//		teclado.close();
+	}
+
+	@Override
 	public Ship[][] getOceanGrid() {
 		return oceanGrid;
 	}
 	
 	@Override
-	public void createOceanGrid() {
-		
-		int counter=0;
-		//System.out.println(lettersMap);
-		//inicializar
-	    
-		while (counter<shipList.length) {
-			System.out.print("\nPlease enter the position of your "+shipList[counter].getName()+": ");
+	public char[][] getTargetGrid() {
+		return targetGrid;
+	}
+	
+	@Override
+	public void attack(Ship[][] rivalGrid) {
+		boolean notAttack=false;
+//		Scanner teclado = new Scanner(System.in);
+
+	    while (!notAttack) {
+			System.out.print("Please select a position within the board to attack: \n");
+			Scanner teclado = new Scanner(System.in); //QUITAR
 			String coordenada;
-			Scanner teclado = new Scanner(System.in);
 			coordenada=teclado.nextLine();
 			String letra1 = coordenada.substring(0,1);
 			String n1 = coordenada.substring(1,2);
 			int number1 = Integer.parseInt(n1);
-			String letra2 = coordenada.substring(3,4);
-			String n2 = coordenada.substring(4,5);
-			int number2 = Integer.parseInt(n2);
-			
-			if (letra1.equals(letra2) && Math.abs(number2-number1)==shipList[counter].getSize()-1) {  //COLUMN SHIP
-				if (checkShip(number1,lettersMap.get(letra1),counter,this.oceanGrid, true)) {
-					shipList[counter].setVertical(true);
-					placeShip(number1,lettersMap.get(letra1),counter,this.oceanGrid);
-					counter++;
-				}
-				//System.out.println("The ship is overlapping other ships. Please try again.\n");
-			}
-			else if (number1==number2 && (Math.abs(lettersMap.get(letra1)-lettersMap.get(letra2)))==shipList[counter].getSize()-1){ //ROW SHIP
-				if (checkShip(number1,lettersMap.get(letra1),counter,this.oceanGrid, false)) {
-					shipList[counter].setVertical(false);
-					placeShip(number1,lettersMap.get(letra1),counter,this.oceanGrid);
-					counter++;
-				}
-			}
-			//System.out.println("The coordinates are not correct. Please try again.\n");
-		}
-	}
-		
+		    
+		    if (targetGrid[number1][lettersMap.get(letra1)]== '\u0000'){
+		    	if (rivalGrid[number1][lettersMap.get(letra1)]!=null) {
+		    		targetGrid[number1][lettersMap.get(letra1)]='X';
+		    		rivalGrid[number1][lettersMap.get(letra1)].setLetter('X');
+		    		int checkeo[]=movePosition(number1,lettersMap.get(letra1),rivalGrid);
+		    		checkShipSunk(checkeo[0],checkeo[1],rivalGrid,targetGrid); //CHECK IF ALL POSITIONS OF THE SHIP HAVE BEEN HIT
+		    	}
+		    	else {
+		    		targetGrid[number1][lettersMap.get(letra1)]='o';
+		    	}
+		    	notAttack = true;
+		    }
 
+	    }
+//	    teclado.close();
+		
+	}
+	
+	private boolean checkOverlapping(int x, int y,int positionList,Ship[][] og, boolean column) {
+		for (int i=0;i<shipList[positionList].getSize();i++) {
+			if (og[x][y] != null) {
+				System.out.println("The Ship is overlapping other ships.");
+				return false;
+			}
+			if (column) {
+				x++;
+			}else {
+				y++;
+			}
+		}
+		return true;
+	}
+	
 	private void placeShip(int x,int y, int positionList,Ship[][] og) {
 		for (int i=0;i<shipList[positionList].getSize();i++) {
 			og[x][y]=shipList[positionList];
@@ -94,59 +150,15 @@ public class User implements Player{
 			}
 		}
 	}
-
-	private boolean checkShip(int x, int y,int positionList,Ship[][] og, boolean column) {
-		for (int i=0;i<shipList[positionList].getSize();i++) {
-			if (og[x][y] != null) {
-				System.out.println("The Ship is overlapping other ships");
-				return false;
-			}
-			if (column) {
-				x++;
-			}else {
-				y++;
-			}
-		}
-		return true;
-	}
-
-
-	@Override
-	public void attack(Ship[][] rivalGrid) {
-		boolean notAttack=false;
-	    while (!notAttack) {
-			System.out.print("Please select a position within the board to attack: ");
-			String coordenada;
-			Scanner teclado = new Scanner(System.in);
-			coordenada=teclado.nextLine();
-			String letra1 = coordenada.substring(0,1);
-			String n1 = coordenada.substring(1,2);
-			int number1 = Integer.parseInt(n1);
-		    
-		    if (targetGrid[number1][lettersMap.get(letra1)]== '\u0000'){
-		    	if (rivalGrid[number1][lettersMap.get(letra1)]!=null) {
-		    		targetGrid[number1][lettersMap.get(letra1)]='X';
-		    		int checkeo[]=movePosition(number1,lettersMap.get(letra1),rivalGrid);
-		    		checkShipSunk(checkeo[0],checkeo[1],rivalGrid,targetGrid); //CHECK IF ALL POSITIONS OF THE SHIP HAVE BEEN HIT
-		    	}
-		    	else {
-		    		targetGrid[number1][lettersMap.get(letra1)]='o';
-		    	}
-		    	notAttack = true;
-		    }
-
-	    }	
-		
-	}
 	
 	private int[] movePosition(int x,int y,Ship[][] rg) {
 		if (rg[x][y].isVertical() && x>0) {
-			if (/*(tg[x-1][y]!= '\u0000') &&*/ rg[x][y].equals(rg[x-1][y])) {  //COLUMN SHIP
+			if (rg[x][y].equals(rg[x-1][y])) {  //COLUMN SHIP
 				return movePosition(x-1,y,rg);
 			}			
 		}
 		else if(y>0){
-			if (/*(tg[x][y-1]!= '\u0000') && */(rg[x][y].equals(rg[x][y-1]))) { //ROW SHIP
+			if ((rg[x][y].equals(rg[x][y-1]))) { //ROW SHIP
 				return movePosition(x,y-1,rg);
 			}			
 		}
@@ -185,8 +197,4 @@ public class User implements Player{
 
 	}
 
-	@Override
-	public char[][] getTargetGrid() {
-		return targetGrid;
-	}
 }

@@ -17,8 +17,8 @@ public class Engine {
 		ai.createOceanGrid();
 		Util.printBoards(ai.getOceanGrid(),ai.getTargetGrid());
 		
-		boolean victoryUser=false;
-		boolean victoryAI=false;
+		boolean victoryUser = false;
+		boolean victoryAI = false;
 
 		
 		while(!victoryUser && !victoryAI) {
@@ -31,12 +31,12 @@ public class Engine {
 
 		}
 		if (victoryUser) {
-			System.out.println("Congratulations on your victory, Player.");
+			System.out.println("Congratulations on your victory, player.");
 		}
 		else {
 			System.out.println("The machine has won the game");
 		}
-		System.out.println("ACABADO");
+		System.out.println("GAME OVER");
 		
 	}
 

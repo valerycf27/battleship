@@ -1,5 +1,5 @@
 package ships;
-//array de caracteres tam de ese array según el tamano
+
 public class Ship {
 	private String name;
 	private int size;
@@ -45,6 +45,10 @@ public class Ship {
 
 	public void setVertical(boolean vertical) {
 		this.vertical = vertical;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	@Override
